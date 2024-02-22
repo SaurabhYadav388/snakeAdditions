@@ -70,6 +70,13 @@ function gameEngine() {
         musicSound.pause();
         inputDir = { x: 0, y: 0 };
         alert("Game Over. Press any key to play again!");
+        //////////
+        console.log("snake arr:");
+        snakeArr.forEach((e, index) => {
+            console.log("index:",index,"x:",e.x,"y:",e.y);
+        });
+        
+        
         snakeArr = [{ x: 13, y: 15 }];
         musicSound.play();
         score = 0;
@@ -117,7 +124,7 @@ function gameEngine() {
     for (let i = snakeArr.length - 2; i >= 0; i--) {
         snakeArr[i + 1] = { ...snakeArr[i] };
     }
-
+    
     snakeArr[0].x += inputDir.x;
     snakeArr[0].y += inputDir.y;
 
@@ -125,11 +132,14 @@ function gameEngine() {
     // Display the snake
     const board = document.getElementById('board');
     board.innerHTML = "";
+    console.log("display snake arr:");
+        
     snakeArr.forEach((e, index) => {
         const snakeElement = document.createElement('div');
+        
         snakeElement.style.gridRowStart = e.y;
         snakeElement.style.gridColumnStart = e.x;
-
+        
         if (index === 0) {
             snakeElement.classList.add('head');
         } else {
@@ -184,48 +194,46 @@ window.addEventListener('keydown', e => {
 });
 
 
-
-window.addEventListener("pointerdown",e=>{
+//use board instead of whole window
+board.addEventListener("pointerdown",e=>{
     initialX=e.clientX;
     initialY=e.clientY;
 })
-window.addEventListener("pointerup",e=>{
+board.addEventListener("pointerup",e=>{
     finalX=e.clientX;
     finalY=e.clientY;
 
     let changeX=finalX-initialX;
     let changeY=finalY-initialY;
-    let delta=25;
 
-    if( Math.abs(Math.abs(changeX) - Math.abs(changeY)) <2*delta)
+    if(Math.abs(changeX)>Math.abs(changeY))
     {
-        console.log("ambiguos");
-        return;
+        if(changeX<0)
+        {    
+            console.log("left");
+            changeDirectionLeft();
+        }
+        
+        else
+        {
+            console.log("right");
+            changeDirectionRight();
+        } 
     }
-
-    if(changeX<-delta)
-    {    
-        console.log("left");
-        changeDirectionLeft();
-    }
-    
-    if(changeX>delta)
+    else
     {
-        console.log("right");
-        changeDirectionRight();
-    }    
-    
-    if(changeY<-delta)
-    {
-        console.log("up");
-        changeDirectionUp();
-    }    
-    
-    if(changeY>delta)
-    {
-        console.log("down");
-        changeDirectionDown();
-    }    
+        if(changeY<0)
+        {
+            console.log("up");
+            changeDirectionUp();
+        }    
+        
+        else
+        {
+            console.log("down");
+            changeDirectionDown();
+        }
+    }     
 
 })
 
