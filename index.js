@@ -4,13 +4,13 @@ const foodSound = new Audio('food.mp3');
 const gameOverSound = new Audio('wallcollide.mp3');
 const moveSound = new Audio('bodycollide.mp3');
 const musicSound = new Audio('gamemusic.mp3');
-let speed = 10;
+let speed = 5;
 let score = 0;
 let lastPaintTime = 0;
 let snakeArr = [{ x: 13, y: 15 }];
 let food = { x: 6, y: 7 };
-let changingDirection = false;
 
+let eatingAnimationFlag=0;
 function toggleMute() {
     if (musicSound.muted) {
         musicSound.muted = false;
@@ -21,23 +21,6 @@ function toggleMute() {
     }
 }
 
-// // Function to update the direction class of the snake's head
-// function updateHeadDirection() {
-//     const headElement = document.querySelector('.head');
-//     if (inputDir.x === 1) {
-//         headElement.classList.remove('up', 'down', 'left');
-//         headElement.classList.add('right');
-//     } else if (inputDir.x === -1) {
-//         headElement.classList.remove('up', 'down', 'right');
-//         headElement.classList.add('left');
-//     } else if (inputDir.y === 1) {
-//         headElement.classList.remove('left', 'up', 'right');
-//         headElement.classList.add('down');
-//     } else if (inputDir.y === -1) {
-//         headElement.classList.remove('left', 'down', 'right');
-//         headElement.classList.add('up');
-//     }
-// }
 
 // Game Functions
 function main(ctime) {
@@ -70,6 +53,7 @@ function gameEngine() {
         musicSound.pause();
         inputDir = { x: 0, y: 0 };
         alert("Game Over. Press any key to play again!");        
+        
         snakeArr = [{ x: 13, y: 15 }];
         musicSound.play();
         score = 0;
@@ -77,8 +61,26 @@ function gameEngine() {
         food = { x: 6, y: 7 };                  ////for same initial position each time
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////
+    //If snake about to eat food
+    if (snakeArr[0].y +2*inputDir.y === food.y && snakeArr[0].x + 2*inputDir.x === food.x)
+    {
+        //for snake bg image of open mouth
+        eatingAnimationFlag++;
+        setTimeout(()=>{eatingAnimationFlag--;},200)
+    }
+    //////////////////////////////////////////////////////////////////////////////////////
+
+
     // If you have eaten the food, increment the score and regenerate the food
     if (snakeArr[0].y === food.y && snakeArr[0].x === food.x) {
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        //for snake bg image of open mouth
+        eatingAnimationFlag++;
+        setTimeout(()=>{eatingAnimationFlag--;},500)
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+
         foodSound.play();
         score += 1;
         if (score > hiscoreval) {
@@ -125,7 +127,6 @@ function gameEngine() {
     // Display the snake
     const board = document.getElementById('board');
     board.innerHTML = "";
-    console.log("display snake arr:");
         
     snakeArr.forEach((e, index) => {
         const snakeElement = document.createElement('div');
@@ -139,16 +140,23 @@ function gameEngine() {
             snakeElement.classList.add('snake');
         }
         board.appendChild(snakeElement);
+        
+        //give bg image to snake head based on flag
+        //If about to or eaten food
+        let headElement = document.querySelector('.head');
+        if(eatingAnimationFlag==0)
+                headElement.style.backgroundImage = "url('/1.png')";
+        else
+                headElement.style.backgroundImage = "url('/2.png')";
 
         // Apply the rotation transformation for snake head alignment
-        const headElement = document.querySelector('.head');
         if(inputDir.x==0&&inputDir.y==-1)//up
             headElement.style.transform = 'rotate(-90deg)';
         if(inputDir.x==0&&inputDir.y==1)//down
             headElement.style.transform = 'rotate(90deg)';
         if(inputDir.x==-1&&inputDir.y==0)//left
             headElement.style.transform = 'rotate(180deg)';
-        //for right default
+        //for right default image orientation
     });
 
     // Display the food
