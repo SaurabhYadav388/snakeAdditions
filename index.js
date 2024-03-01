@@ -1,16 +1,20 @@
 // Game Constants & Variables
-let inputDir = { x: 0, y: 0 };
+
 const foodSound = new Audio('food.mp3');
 const gameOverSound = new Audio('wallcollide.mp3');
 const moveSound = new Audio('bodycollide.mp3');
 const musicSound = new Audio('gamemusic.mp3');
 let speed = 5;
-let score = 0;
+let score1 = 0;
+let score2 = 0;
 let lastPaintTime = 0;
-let snakeArr = [{ x: 13, y: 15 }];
+let snakeArr1 = [{ x: 13, y: 15 }];//
+let snakeArr2 = [{ x: 4, y: 15 }];//
+let inputDir1 = { x: 0, y: 0 };
+let inputDir2 = { x: 0, y: 0 };
 let food = { x: 6, y: 7 };
 
-let eatingAnimationFlag=0;
+
 function toggleMute() {
     if (musicSound.muted) {
         musicSound.muted = false;
@@ -32,10 +36,14 @@ function main(ctime) {
     gameEngine();
 }
 
+//no change needed
 function isCollide(snake) {
-    // If you bump into yourself 
-    for (let i = 1; i < snakeArr.length; i++) {
-        if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) {
+    // If you bump into yourself or other
+    for (let i = 1; i < Math.max(snakeArr1.length,snakeArr2.length); i++) {
+        if (i< snakeArr1.length &&  snakeArr1[i].x === snake[0].x && snakeArr1[i].y === snake[0].y) {
+            return true;
+        }
+        if (i< snakeArr2.length && snakeArr2[i].x === snake[0].x && snakeArr2[i].y === snake[0].y) {
             return true;
         }
     }
@@ -48,48 +56,76 @@ function isCollide(snake) {
 
 function gameEngine() {
     // Part 1: Updating the snake array & Food
-    if (isCollide(snakeArr)) {
+    if (isCollide(snakeArr1) || isCollide(snakeArr2) ) // 
+    {
         gameOverSound.play();
         musicSound.pause();
-        inputDir = { x: 0, y: 0 };
+        inputDir1 = { x: 0, y: 0 };
+        inputDir2 = { x: 0, y: 0 };//
         alert("Game Over. Press any key to play again!");        
         
-        snakeArr = [{ x: 13, y: 15 }];
+        snakeArr1 = [{ x: 13, y: 15 }];
+        snakeArr2 = [{ x: 4, y: 15 }];//
         musicSound.play();
-        score = 0;
-        scoreBox.innerHTML = "Score: " + score; ////adding to update score on screen
+        score1=0;///////////////need score update for both
+        score2=0;
+        scoreBox.innerHTML = "Score1: " + score1+ " | Score2: "+score2; ////adding to update score on screen
         food = { x: 6, y: 7 };                  ////for same initial position each time
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////
-    //If snake about to eat food
-    if (snakeArr[0].y +2*inputDir.y === food.y && snakeArr[0].x + 2*inputDir.x === food.x)
-    {
-        //for snake bg image of open mouth
-        eatingAnimationFlag++;
-        setTimeout(()=>{eatingAnimationFlag--;},200)
-    }
-    //////////////////////////////////////////////////////////////////////////////////////
+    
 
 
     // If you have eaten the food, increment the score and regenerate the food
-    if (snakeArr[0].y === food.y && snakeArr[0].x === food.x) {
+    //snake 1
+    if (snakeArr1[0].y === food.y && snakeArr1[0].x === food.x) {
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        //for snake bg image of open mouth
-        eatingAnimationFlag++;
-        setTimeout(()=>{eatingAnimationFlag--;},500)
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    
         foodSound.play();
-        score += 1;
-        if (score > hiscoreval) {
-            hiscoreval = score;
-            localStorage.setItem("hiscore", JSON.stringify(hiscoreval));
-            hiscoreBox.innerHTML = "HiScore: " + hiscoreval;
-        }
-        scoreBox.innerHTML = "Score: " + score;
-        snakeArr.unshift({ x: snakeArr[0].x + inputDir.x, y: snakeArr[0].y + inputDir.y });
+        score1 += 1;
+        // if (score > hiscoreval) {
+        //     hiscoreval = score;
+        //     localStorage.setItem("hiscore", JSON.stringify(hiscoreval));
+        //     hiscoreBox.innerHTML = "HiScore: " + hiscoreval;
+        // }
+        scoreBox.innerHTML =  "Score1: " + score1+ " | Score2: "+score2;
+        snakeArr1.unshift({ x: snakeArr1[0].x + inputDir1.x, y: snakeArr1[0].y + inputDir1.y });
+        let a = 2;
+        let b = 16;
+
+        //make sure food not appear on snake //can be moved to function
+        let foodx;
+        let foody;
+        let foodOnSnake;
+        do{
+            foodOnSnake=false;
+            foodx=Math.round(a + (b-a)* Math.random())
+            foody=Math.round(a + (b-a)* Math.random())
+
+            for (let i = 0; i < snakeArr1.length; i++) {
+                if(snakeArr1[i].x === foodx && snakeArr1[i].y === foody){
+                    foodOnSnake=true;
+                    break;
+                }
+            }
+        
+        }while(foodOnSnake==true);
+        
+        food={x:foodx,y:foody};
+        //food = {x: Math.round(a + (b-a)* Math.random()), y: Math.round(a + (b-a)* Math.random())}
+    }
+    //snake2
+    if (snakeArr2[0].y === food.y && snakeArr2[0].x === food.x) {
+
+    
+        foodSound.play();
+        score2 += 1;
+        // if (score > hiscoreval) {
+        //     hiscoreval = score;
+        //     localStorage.setItem("hiscore", JSON.stringify(hiscoreval));
+        //     hiscoreBox.innerHTML = "HiScore: " + hiscoreval;
+        // }
+        scoreBox.innerHTML =  "Score1: " + score1+ " | Score2: "+score2;
+        snakeArr2.unshift({ x: snakeArr2[0].x + inputDir2.x, y: snakeArr2[0].y + inputDir2.y });
         let a = 2;
         let b = 16;
 
@@ -102,8 +138,8 @@ function gameEngine() {
             foodx=Math.round(a + (b-a)* Math.random())
             foody=Math.round(a + (b-a)* Math.random())
 
-            for (let i = 0; i < snakeArr.length; i++) {
-                if(snakeArr[i].x === foodx && snakeArr[i].y === foody){
+            for (let i = 0; i < snakeArr2.length; i++) {
+                if(snakeArr2[i].x === foodx && snakeArr2[i].y === foody){
                     foodOnSnake=true;
                     break;
                 }
@@ -115,49 +151,76 @@ function gameEngine() {
         //food = {x: Math.round(a + (b-a)* Math.random()), y: Math.round(a + (b-a)* Math.random())}
     }
 
-    // Moving the snake
-    for (let i = snakeArr.length - 2; i >= 0; i--) {
-        snakeArr[i + 1] = { ...snakeArr[i] };
+
+    // Moving the snake1
+    for (let i = snakeArr1.length - 2; i >= 0; i--) {
+        snakeArr1[i + 1] = { ...snakeArr1[i] };
     }
-    
-    snakeArr[0].x += inputDir.x;
-    snakeArr[0].y += inputDir.y;
+    snakeArr1[0].x += inputDir1.x;
+    snakeArr1[0].y += inputDir1.y;
+    ////////////////////////////////
+
+    // Moving the snake2
+    for (let i = snakeArr2.length - 2; i >= 0; i--) {
+        snakeArr2[i + 1] = { ...snakeArr2[i] };
+    }
+    snakeArr2[0].x += inputDir2.x;
+    snakeArr2[0].y += inputDir2.y;
+    ////////////////////////////////
 
     // Part 2: Display the snake and Food
     // Display the snake
     const board = document.getElementById('board');
     board.innerHTML = "";
         
-    snakeArr.forEach((e, index) => {
+    snakeArr1.forEach((e, index) => {
         const snakeElement = document.createElement('div');
         
         snakeElement.style.gridRowStart = e.y;
         snakeElement.style.gridColumnStart = e.x;
         
         if (index === 0) {
-            snakeElement.classList.add('head');
+            snakeElement.classList.add('head1');
         } else {
-            snakeElement.classList.add('snake');
+            snakeElement.classList.add('snake1');
         }
         board.appendChild(snakeElement);
         
-        //give bg image to snake head based on flag
-        //If about to or eaten food
-        let headElement = document.querySelector('.head');
-        if(eatingAnimationFlag==0)
-                headElement.style.backgroundImage = "url('/1.png')";
-        else
-                headElement.style.backgroundImage = "url('/2.png')";
-
+        let headElement = document.querySelector('.head1');
         // Apply the rotation transformation for snake head alignment
-        if(inputDir.x==0&&inputDir.y==-1)//up
+        if(inputDir1.x==0&&inputDir1.y==-1)//up
             headElement.style.transform = 'rotate(-90deg)';
-        if(inputDir.x==0&&inputDir.y==1)//down
+        if(inputDir1.x==0&&inputDir1.y==1)//down
             headElement.style.transform = 'rotate(90deg)';
-        if(inputDir.x==-1&&inputDir.y==0)//left
+        if(inputDir1.x==-1&&inputDir1.y==0)//left
             headElement.style.transform = 'rotate(180deg)';
         //for right default image orientation
     });
+    /////////////
+    snakeArr2.forEach((e, index) => {
+        const snakeElement = document.createElement('div');
+        
+        snakeElement.style.gridRowStart = e.y;
+        snakeElement.style.gridColumnStart = e.x;
+        
+        if (index === 0) {
+            snakeElement.classList.add('head2');
+        } else {
+            snakeElement.classList.add('snake2');
+        }
+        board.appendChild(snakeElement);
+        
+        let headElement = document.querySelector('.head2');
+        // Apply the rotation transformation for snake head alignment
+        if(inputDir2.x==0&&inputDir2.y==-1)//up
+            headElement.style.transform = 'rotate(-90deg)';
+        if(inputDir2.x==0&&inputDir2.y==1)//down
+            headElement.style.transform = 'rotate(90deg)';
+        if(inputDir2.x==-1&&inputDir2.y==0)//left
+            headElement.style.transform = 'rotate(180deg)';
+        //for right default image orientation
+    });
+
 
     // Display the food
     const foodElement = document.createElement('div');
@@ -172,19 +235,32 @@ window.addEventListener('keydown', e => {
     // moveSound.play();//moved to direction functions
     switch (e.key) {
         case "ArrowUp":
-            changeDirectionUp();
+            changeDirectionUp(inputDir1);
             break;
 
         case "ArrowDown":
-            changeDirectionDown();
+            changeDirectionDown(inputDir1);
             break;
 
         case "ArrowLeft":
-           changeDirectionLeft();
+           changeDirectionLeft(inputDir1);
             break;
 
         case "ArrowRight":
-            changeDirectionRight();
+            changeDirectionRight(inputDir1);
+            break;
+/////////////////////////////////////////////
+        case 'w':
+            changeDirectionUp(inputDir2);
+            break;
+        case 's':
+            changeDirectionDown(inputDir2);
+            break;
+        case 'a':
+            changeDirectionLeft(inputDir2);
+            break;
+        case 'd':
+            changeDirectionRight(inputDir2);
             break;
 
         default:
@@ -238,7 +314,7 @@ board.addEventListener("pointerup",e=>{
 
 })
 
-function changeDirectionLeft(){
+function changeDirectionLeft(inputDir){
     if (inputDir.x !== 1) { // Prevent the snake from reversing its direction horizontally
         inputDir.x = -1;
         inputDir.y = 0;
@@ -246,7 +322,7 @@ function changeDirectionLeft(){
         moveSound.play();
     }
 }
-function changeDirectionRight(){
+function changeDirectionRight(inputDir){
     if (inputDir.x !== -1) { // Prevent the snake from reversing its direction horizontally
         inputDir.x = 1;
         inputDir.y = 0;
@@ -254,7 +330,7 @@ function changeDirectionRight(){
         moveSound.play();
     }
 }
-function changeDirectionUp(){
+function changeDirectionUp(inputDir){
     if (inputDir.y !== 1) { // Prevent the snake from reversing its direction vertically
         inputDir.x = 0;
         inputDir.y = -1;
@@ -262,7 +338,7 @@ function changeDirectionUp(){
         moveSound.play();
     }
 }
-function changeDirectionDown(){
+function changeDirectionDown(inputDir){
     if (inputDir.y !== -1) { // Prevent the snake from reversing its direction vertically
         inputDir.x = 0;
         inputDir.y = 1;
